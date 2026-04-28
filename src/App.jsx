@@ -1,16 +1,28 @@
 import { useState, useEffect } from 'react';
-import { Phone, Navigation as NavigationIcon, ChevronDown, CheckCircle, Clock, Award, Users } from 'lucide-react';
+import { Phone, Navigation as NavigationIcon, ChevronDown, CheckCircle, Clock, Award, Users, Menu, X, ArrowUp } from 'lucide-react';
 import LiquidChrome from './components/LiquidChrome';
 
 function App() {
   const [navDark, setNavDark] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       setNavDark(window.scrollY > 50);
+      setShowScrollTop(window.scrollY > 400);
+    };
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) setMobileMenuOpen(false);
     };
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   return (
@@ -20,31 +32,103 @@ function App() {
       <nav 
         style={{
           position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          padding: '1.5rem 2rem',
+          top: '1rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 100,
+          padding: isMobile ? '0.6rem 1.5rem' : '0.75rem 2.5rem',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          transition: 'all 0.3s ease',
-          backgroundColor: navDark ? 'rgba(10, 10, 10, 0.95)' : 'transparent',
-          borderBottom: navDark ? '1px solid rgba(199, 52, 52, 0.2)' : '1px solid transparent',
+          gap: isMobile ? '1.5rem' : '4rem',
+          transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          backgroundColor: 'rgba(255, 255, 255, 0.5)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderRadius: '100px',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+          width: 'max-content',
+          maxWidth: '95%'
         }}
       >
-        <div 
-          className="font-heading" 
-          style={{ fontSize: '1.5rem', color: '#c73434', letterSpacing: '2px' }}
-        >
-          STANLEY PRO AUDIO
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <img 
+            src="/stanleylogo2.png" 
+            alt="Stanley Pro Audio" 
+            style={{ height: isMobile ? '28px' : '32px', width: 'auto', display: 'block' }}
+          />
         </div>
-        <div className="font-label" style={{ display: 'flex', gap: '2rem', fontSize: '1.1rem' }}>
-          <a href="#services" style={{ color: '#fff', textDecoration: 'none' }}>Services</a>
-          <a href="#about" style={{ color: '#fff', textDecoration: 'none' }}>About</a>
-          <a href="#contact" style={{ color: '#fff', textDecoration: 'none' }}>Contact</a>
-        </div>
+
+        {!isMobile ? (
+          <div className="font-label" style={{ display: 'flex', gap: '2.5rem', fontSize: '1rem' }}>
+            <a href="#services" style={{ color: '#0a0a0a', textDecoration: 'none', fontWeight: '700', letterSpacing: '1px' }}>SERVICES</a>
+            <a href="#about" style={{ color: '#0a0a0a', textDecoration: 'none', fontWeight: '700', letterSpacing: '1px' }}>ABOUT</a>
+            <a href="#contact" style={{ color: '#0a0a0a', textDecoration: 'none', fontWeight: '700', letterSpacing: '1px' }}>CONTACT</a>
+          </div>
+        ) : (
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: '#0a0a0a', 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              padding: '4px'
+            }}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        )}
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      {isMobile && mobileMenuOpen && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(10, 10, 10, 0.98)',
+            zIndex: 90,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '2.5rem',
+            animation: 'fadeIn 0.3s ease'
+          }}
+        >
+          <a 
+            href="#services" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="font-heading"
+            style={{ color: '#fff', textDecoration: 'none', fontSize: '3rem', letterSpacing: '4px' }}
+          >
+            SERVICES
+          </a>
+          <a 
+            href="#about" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="font-heading"
+            style={{ color: '#fff', textDecoration: 'none', fontSize: '3rem', letterSpacing: '4px' }}
+          >
+            ABOUT
+          </a>
+          <a 
+            href="#contact" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="font-heading"
+            style={{ color: '#fff', textDecoration: 'none', fontSize: '3rem', letterSpacing: '4px' }}
+          >
+            CONTACT
+          </a>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section 
@@ -115,7 +199,7 @@ function App() {
             }}
           >
             <div className="float-medium delay-2" style={{ fontSize: 'clamp(4rem, 15vw, 10rem)', letterSpacing: '4px' }}>STANLEY</div>
-            <div className="float-fast delay-3" style={{ fontSize: 'clamp(3rem, 12vw, 8rem)', letterSpacing: '4px', color: '#c73434' }}>PRO AUDIO</div>
+            <div className="float-fast delay-3" style={{ fontSize: 'clamp(3rem, 12vw, 8rem)', letterSpacing: '4px', color: '#000000' }}>PRO AUDIO</div>
           </h1>
 
           <p 
@@ -215,6 +299,12 @@ function App() {
       <section id="services" style={{ padding: '8rem 0', backgroundColor: '#0a0a0a', position: 'relative', zIndex: 10 }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+            <img 
+              src="/stanleylogo-removebg-preview.png" 
+              alt="Stanley Pro Audio" 
+              style={{ height: '100px', width: 'auto', marginBottom: '1.5rem' }}
+            />
+            <br />
             <span className="font-label" style={{ color: '#c73434', letterSpacing: '4px' }}>What We Offer</span>
             <h2 className="font-heading" style={{ fontSize: '4rem', marginTop: '0.5rem' }}>Our Services</h2>
           </div>
@@ -380,6 +470,42 @@ function App() {
           
         </div>
       </footer>
+
+      {/* Scroll to Top Button */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          width: '50px',
+          height: '50px',
+          borderRadius: '50%',
+          backgroundColor: 'rgba(199, 52, 52, 0.9)',
+          color: '#fff',
+          border: 'none',
+          cursor: 'pointer',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 100,
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          opacity: showScrollTop ? 1 : 0,
+          transform: showScrollTop ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.8)',
+          pointerEvents: showScrollTop ? 'auto' : 'none',
+          boxShadow: '0 4px 20px rgba(199, 52, 52, 0.4)',
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.transform = 'translateY(-5px) scale(1.1)';
+          e.currentTarget.style.boxShadow = '0 8px 30px rgba(199, 52, 52, 0.6)';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 20px rgba(199, 52, 52, 0.4)';
+        }}
+      >
+        <ArrowUp size={24} />
+      </button>
 
     </div>
   );
